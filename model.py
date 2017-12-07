@@ -120,15 +120,15 @@ X = oneHotEncoder_X_2.fit_transform(X).toarray()
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0) 
 
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn import model_selection
 from sklearn.ensemble import BaggingClassifier
 
 seed = 7
 kfold = model_selection.KFold(n_splits = 10, random_state = seed)
-cart = DecisionTreeClassifier()
+max_feature = 3
 
-model = BaggingClassifier(base_estimator=cart, n_estimators=100, random_state=seed)
+model = RandomForestClassifier(n_estimators=100, max_features=max_feature)
 results = model_selection.cross_val_score(model, X, y, cv=kfold)
 model.fit(X,y)
 y_pred = model.predict(X)
@@ -234,10 +234,10 @@ X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
 #y_pred_Train = classifier.predict_on_bestEstimator(X_test,'RandomForestClassifier')
 #y_pred_Train = classifier.predict(X_test)
 
-y_pred = model.predict(X_test)
+y_pred_Train = model.predict(X_test)
 
 
 y_pred_Train = ["Y" if i == 1 else "N" for i in y_pred_Train]
 pd.DataFrame({"Loan_ID" : originalTestData.Loan_ID, "Loan_Status" : y_pred_Train}).to_csv('sample_submission.csv', index=False)
-result = classifier.score_summary(sort_by='min_score')
+result = model.score_summary(sort_by='min_score')
 
