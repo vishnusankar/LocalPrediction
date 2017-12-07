@@ -120,15 +120,15 @@ X = oneHotEncoder_X_2.fit_transform(X).toarray()
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0) 
 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn import model_selection
-from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import ExtraTreesClassifier
 
 seed = 7
 kfold = model_selection.KFold(n_splits = 10, random_state = seed)
-max_feature = 3
+#cart = DecisionTreeClassifier()
 
-model = RandomForestClassifier(n_estimators=100, max_features=max_feature)
+model = ExtraTreesClassifier(n_estimators=100, max_features=7)
 results = model_selection.cross_val_score(model, X, y, cv=kfold)
 model.fit(X,y)
 y_pred = model.predict(X)
