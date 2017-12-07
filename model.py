@@ -120,36 +120,49 @@ X = oneHotEncoder_X_2.fit_transform(X).toarray()
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0) 
 
-from sklearn.ensemble import RandomForestClassifier
-from  EstimatorSelectionHelper import EstimatorSelectionHelper
-from xgboost import XGBClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn import model_selection
+from sklearn.ensemble import BaggingClassifier
+
+seed = 7
+kfold = model_selection.KFold(n_splits = 10, random_state = seed)
+cart = DecisionTreeClassifier()
+
+model = BaggingClassifier(base_estimator=cart, n_estimators=100, random_state=seed)
+results = model_selection.cross_val_score(model, X, y, cv=kfold)
+model.fit(X,y)
+y_pred = model.predict(X)
+
+
+#from  EstimatorSelectionHelper import EstimatorSelectionHelper
+#from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score
+#
+#models = {
+#            'RandomForestClassifier' : RandomForestClassifier(),
+#            'XGBClassifier' : XGBClassifier()
+#            }
+#    
+#parameter = {
+#            'RandomForestClassifier' : { 'max_depth' : [2,5,7,9],
+#                                        'n_estimators': [200, 700],
+#                                        'max_features': ['auto', 'sqrt', 'log2'],
+#                                        'criterion' : ['gini', 'entropy']},
+#            'XGBClassifier' : {}
+#            }
+#    
+#classifier = EstimatorSelectionHelper(models, parameter)
+#classifier.fit(X, y, scoring='f1', cv = 3, n_jobs=1,refit=True,verbose=2)
+#y_pred = classifier.predict(X_test)
 
-models = {
-            'RandomForestClassifier' : RandomForestClassifier(),
-            'XGBClassifier' : XGBClassifier()
-            }
-    
-parameter = {
-            'RandomForestClassifier' : { 'max_depth' : [2,5,7,9],
-                                        'n_estimators': [200, 700],
-                                        'max_features': ['auto', 'sqrt', 'log2'],
-                                        'criterion' : ['gini', 'entropy']},
-            'XGBClassifier' : {}
-            }
-    
-classifier = EstimatorSelectionHelper(models, parameter)
-classifier.fit(X, y, scoring='f1', cv = 3, n_jobs=1,refit=True,verbose=2)
-y_pred = classifier.predict(X_test)
 
-
-classifier = XGBClassifier()
-classifier.fit(X,y)
-y_pred = classifier.predict_on_bestEstimator(X_test)
+#classifier = XGBClassifier()
+#classifier.fit(X,y)
+#y_pred = classifier.predict_on_bestEstimator(X_test)
 
 predictions = [round(value) for value in y_pred]
 # evaluate predictions
-accuracy = accuracy_score(y_test, predictions)
+accuracy = accuracy_score(y, predictions)
 print("Accuracy: %.2f%%" % (accuracy * 100.0))
 #------------------------------------------------ X_train Data ----------------------------------------------------------------#
 
@@ -219,9 +232,9 @@ oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[16])
 X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
 
 #y_pred_Train = classifier.predict_on_bestEstimator(X_test,'RandomForestClassifier')
+#y_pred_Train = classifier.predict(X_test)
 
-y_pred_Train = classifier.predict(X_test)
-
+y_pred = model.predict(X_test)
 
 
 y_pred_Train = ["Y" if i == 1 else "N" for i in y_pred_Train]
