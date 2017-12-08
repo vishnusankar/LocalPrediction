@@ -201,18 +201,18 @@ X_test[:, 10] = labelencoder_X_2.fit_transform(X_test[:, 10])
 
 # Dummy Variables
 
-# Gender Column
-oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[0])
-X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
-
-
-# Gender Column
-oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[4])
-X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
-
-# Gender Column
-oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[16])
-X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
+## Gender Column
+#oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[0])
+#X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
+#
+#
+## Gender Column
+#oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[4])
+#X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
+#
+## Gender Column
+#oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[16])
+#X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
 
 #y_pred_Train = classifier.predict_on_bestEstimator(X_test,'RandomForestClassifier')
 #y_pred_Train = classifier.predict(X_test)
