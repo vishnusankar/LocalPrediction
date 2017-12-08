@@ -89,86 +89,59 @@ X[:, 10] = labelencoder_X_2.fit_transform(X[:, 10])
 y = labelencoder_X_2.fit_transform(y)
 
 # Gender Column
-oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[0])
-X = oneHotEncoder_X_2.fit_transform(X).toarray()
-
-
-# Gender Column
-oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[4])
-X = oneHotEncoder_X_2.fit_transform(X).toarray()
-
-
-oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[16])
-X = oneHotEncoder_X_2.fit_transform(X).toarray()
-
-
-#OneHotEncoder_X_1 = OneHotEncoder(categorical_features = [0])
-#pd.Series(np.where(lambda x: dict(yes=1, no=0)[x],
-#              X.tolist()),X.index)
-#X = OneHotEncoder_X_1.fit_transform(X[:1]).toarray()
-
-#labelencoder_X_2 = LabelEncoder()
-#X[:, 2] = labelencoder_X_2.fit_transform(X[:, 2])
-#onehotencoder = OneHotEncoder(categorical_features = [1])
-#X = onehotencoder.fit_transform(X).toarray()
-#X = X[:, 1:]
-
+#oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[0])
+#X = oneHotEncoder_X_2.fit_transform(X).toarray()
+#
+#
+## Gender Column
+#oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[4])
+#X = oneHotEncoder_X_2.fit_transform(X).toarray()
+#
+#
+#oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[16])
+#X = oneHotEncoder_X_2.fit_transform(X).toarray()
 
 # Feature Extraction
 
 # Feature Selection
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0) 
+#from sklearn.model_selection import train_test_split
+#X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0) 
 
-from sklearn.tree import DecisionTreeClassifier
 from sklearn import model_selection
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from xgboost import XGBClassifier
-from sklearn.ensemble import VotingClassifier
+from sklearn.ensemble import BaggingClassifier
+from sklearn.metrics import accuracy_score
+
 seed = 7
 kfold = model_selection.KFold(n_splits = 10, random_state = seed)
-cart = DecisionTreeClassifier()
+cart = XGBClassifier()
 
-estimators = []
-model1 = ExtraTreesClassifier()
-estimators.append(('ExtraTreesClassifier', model1))
-model2 = XGBClassifier()
-estimators.append(('XGBClassifier', model2))
-model3 = RandomForestClassifier()
-estimators.append(('RandomForestClassifier', model3))
+#estimators = []
+#model1 = ExtraTreesClassifier()
+#estimators.append(('ExtraTreesClassifier', model1))
+#model2 = XGBClassifier()
+#estimators.append(('XGBClassifier', model2))
+#model3 = RandomForestClassifier()
+#estimators.append(('RandomForestClassifier', model3))
 
+ensemble = BaggingClassifier(base_estimator=cart, n_estimators=100, random_state=seed)
 
+results = model_selection.cross_val_score(ensemble, X, y, cv=kfold)
+print(results.mean())
 
-results = model_selection.cross_val_score(model, X, y, cv=kfold)
-model.fit(X,y)
-y_pred = model.predict(X)
-
-
-#from  EstimatorSelectionHelper import EstimatorSelectionHelper
-#from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score
-#
-#models = {
-#            'RandomForestClassifier' : RandomForestClassifier(),
-#            'XGBClassifier' : XGBClassifier()
-#            }
-#    
-#parameter = {
-#            'RandomForestClassifier' : { 'max_depth' : [2,5,7,9],
-#                                        'n_estimators': [200, 700],
-#                                        'max_features': ['auto', 'sqrt', 'log2'],
-#                                        'criterion' : ['gini', 'entropy']},
-#            'XGBClassifier' : {}
-#            }
-#    
-#classifier = EstimatorSelectionHelper(models, parameter)
-#classifier.fit(X, y, scoring='f1', cv = 3, n_jobs=1,refit=True,verbose=2)
-#y_pred = classifier.predict(X_test)
-
-
-#classifier = XGBClassifier()
-#classifier.fit(X,y)
-#y_pred = classifier.predict_on_bestEstimator(X_test)
+#0.79318507891 = 1 n_splits, 50 n_estimators, with hotEncoder
+#0.796562665256 = 10 n_splits, 50 n_estimators, with hotEncoder
+#0.803067160233 = 10 n_splits, 100 n_estimators, with hotEncoder, XGBClassifier
+#0.803093601269 = 10 n_splits, 100 n_estimators, disable hotEncoder, XGBClassifier
+#0.791530944625 = 1 n_splits, 100 n_estimators, with hotEncoder
+#0.791530944625 = 10 n_splits, 130 n_estimators, with hotEncoder
+#0.767345319937 = 10 n_splits, 130 n_estimators, disable hotEncoder
+#0.773849814913 = 10 n_splits, 130 n_estimators, with hotEncoder
+ensemble.fit(X,y)
+y_pred = ensemble.predict(X)
 
 predictions = [round(value) for value in y_pred]
 # evaluate predictions
@@ -244,7 +217,7 @@ X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
 #y_pred_Train = classifier.predict_on_bestEstimator(X_test,'RandomForestClassifier')
 #y_pred_Train = classifier.predict(X_test)
 
-y_pred_Train = model.predict(X_test)
+y_pred_Train = ensemble.predict(X_test)
 
 
 y_pred_Train = ["Y" if i == 1 else "N" for i in y_pred_Train]
