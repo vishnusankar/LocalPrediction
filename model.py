@@ -123,12 +123,22 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import model_selection
 from sklearn.ensemble import ExtraTreesClassifier
-
+from xgboost import XGBClassifier
+from sklearn.ensemble import VotingClassifier
 seed = 7
 kfold = model_selection.KFold(n_splits = 10, random_state = seed)
-#cart = DecisionTreeClassifier()
+cart = DecisionTreeClassifier()
 
-model = ExtraTreesClassifier(n_estimators=100, max_features=7)
+estimators = []
+model1 = ExtraTreesClassifier()
+estimators.append(('ExtraTreesClassifier', model1))
+model2 = XGBClassifier()
+estimators.append(('XGBClassifier', model2))
+model3 = RandomForestClassifier()
+estimators.append(('RandomForestClassifier', model3))
+
+
+
 results = model_selection.cross_val_score(model, X, y, cv=kfold)
 model.fit(X,y)
 y_pred = model.predict(X)
