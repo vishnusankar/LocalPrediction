@@ -131,6 +131,7 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.ensemble import BaggingClassifier
+
 from sklearn.ensemble import VotingClassifier
 from sklearn.metrics import accuracy_score
 
@@ -170,6 +171,12 @@ print(results.mean())
 #0.791530944625 = 10 n_splits, 130 n_estimators, with hotEncoder
 #0.767345319937 = 10 n_splits, 130 n_estimators, disable hotEncoder
 #0.773849814913 = 10 n_splits, 130 n_estimators, with hotEncoder
+
+#0.801480698043 & Accuracy: 84.53% = 10 n_splits, 100 n_estimators, 17 Random_seed BagginClassifier with XGBClassifier as base learner = Result - 0.6111
+#0.803093601269 Accuracy: 83.55% = 10 n_splits, 100 n_estimators, 4 Random_seed BagginClassifier with XGBClassifier as base learner = Result - 0.7083333333333334
+#0.803093601269 Accuracy: 84.04% = 10 n_splits, 100 n_estimators, 2 Random_seed BagginClassifier with XGBClassifier as base learner = Result - 0.6111111111111112
+#0.799867794818 Accuracy: 84.20% = 10 n_splits, 100 n_estimators, 10 Random_seed BagginClassifier with XGBClassifier as base learner = Result - 0.5833333333333334
+#0.803093601269 Accuracy: 84.04% = 10 n_splits, 100 n_estimators, 7 Random_seed BagginClassifier with XGBClassifier as base learner = Result - 0.7222222222222222
 ensemble.fit(X,y)
 y_pred = ensemble.predict(X)
 
