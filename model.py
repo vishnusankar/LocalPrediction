@@ -11,6 +11,7 @@ from sklearn.preprocessing import Imputer
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
 import seaborn as sns
 from HelperClass import HelperClass
 
@@ -54,17 +55,26 @@ trainData['Loan_Amount_Term'].fillna((trainData['Loan_Amount_Term'].mean()), inp
 ## Credit_History Column
 trainData['Credit_History'].fillna((trainData['Credit_History'].mean()), inplace = True)
 
+withOutLoanIDValuetrainData = trainData.drop('Loan_ID', 1)
+withOutTargetValuetrainData = withOutLoanIDValuetrainData.drop('Loan_Status', 1)
+#withOutTargetValuetrainData= pd.get_dummies(withOutTargetValuetrainData)
+
 #---------------- Fill Mising Values--------------------------------
 
 # Label Encoding categorical data
-X = trainData.iloc[:,1:12].values
+X = withOutTargetValuetrainData.iloc[:,0:11].values
 y = trainData.iloc[:, 12].values
+
+loadAmout_loadAmoutTerm = X[:,8:10]
+np.cov(loadAmout_loadAmoutTerm.astype(float), rowvar=False)
+
+
 
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from HelperClass import HelperClass
-
+#
 labelencoder_X_2 = LabelEncoder()
-
+#
 # Gender Column
 X[:, 0] = labelencoder_X_2.fit_transform(X[:, 0])
 
@@ -83,23 +93,27 @@ X[:, 4] = labelencoder_X_2.fit_transform(X[:, 4])
 # Property Area Column
 X[:, 10] = labelencoder_X_2.fit_transform(X[:, 10])
 
-# Dummy Variables
-
+## Dummy Variables
+#
 # Load Status Column
 y = labelencoder_X_2.fit_transform(y)
 
-# Gender Column
+## Gender Column
 #oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[0])
 #X = oneHotEncoder_X_2.fit_transform(X).toarray()
-#
-#
-## Gender Column
+##
+##
+### Dependents Column
 #oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[4])
 #X = oneHotEncoder_X_2.fit_transform(X).toarray()
-#
-#
+##
+## Area Column
 #oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[16])
 #X = oneHotEncoder_X_2.fit_transform(X).toarray()
+
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X = sc.fit_transform(X)
 
 # Feature Extraction
 
@@ -108,12 +122,19 @@ y = labelencoder_X_2.fit_transform(y)
 #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0) 
 
 from sklearn import model_selection
+from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
+from xgboost import plot_tree
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
-from xgboost import XGBClassifier
 from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import VotingClassifier
 from sklearn.metrics import accuracy_score
+
+
 
 seed = 7
 kfold = model_selection.KFold(n_splits = 10, random_state = seed)
@@ -128,6 +149,15 @@ cart = XGBClassifier()
 #estimators.append(('RandomForestClassifier', model3))
 
 ensemble = BaggingClassifier(base_estimator=cart, n_estimators=100, random_state=seed)
+#estimators = []
+#model2 = DecisionTreeClassifier()
+#estimators.append(('cart', model2))
+#model3 = SVC()
+#estimators.append(('svm', model3))
+#model4 = XGBClassifier()
+#estimators.append(('XGB', model3))
+## create the ensemble model
+#ensemble = VotingClassifier(estimators)
 
 results = model_selection.cross_val_score(ensemble, X, y, cv=kfold)
 print(results.mean())
@@ -142,6 +172,7 @@ print(results.mean())
 #0.773849814913 = 10 n_splits, 130 n_estimators, with hotEncoder
 ensemble.fit(X,y)
 y_pred = ensemble.predict(X)
+
 
 predictions = [round(value) for value in y_pred]
 # evaluate predictions
@@ -175,10 +206,13 @@ originalTestData['Loan_Amount_Term'].fillna((originalTestData['Loan_Amount_Term'
 ## Credit_History Column
 originalTestData['Credit_History'].fillna((originalTestData['Credit_History'].mean()), inplace = True)
 
+withOutLoadIDTestData = originalTestData.drop('Loan_ID', 1)
+#withOutLoadIDTestData = pd.get_dummies(withOutLoadIDTestData)
+
 #---------------- Fill Mising Values--------------------------------
 
 # Label Encoding categorical data
-X_test = originalTestData.iloc[:,1:12].values
+X_test = withOutLoadIDTestData .iloc[:,0:24].values
 
 # Gender Column
 X_test[:, 0] = labelencoder_X_2.fit_transform(X_test[:, 0])
@@ -214,6 +248,10 @@ X_test[:, 10] = labelencoder_X_2.fit_transform(X_test[:, 10])
 #oneHotEncoder_X_2 = OneHotEncoder(categorical_features=[16])
 #X_test = oneHotEncoder_X_2.fit_transform(X_test).toarray()
 
+#from sklearn.preprocessing import StandardScaler
+#sc = StandardScaler()
+#X_test = sc.fit_transform(X_test)
+
 #y_pred_Train = classifier.predict_on_bestEstimator(X_test,'RandomForestClassifier')
 #y_pred_Train = classifier.predict(X_test)
 
@@ -222,5 +260,5 @@ y_pred_Train = ensemble.predict(X_test)
 
 y_pred_Train = ["Y" if i == 1 else "N" for i in y_pred_Train]
 pd.DataFrame({"Loan_ID" : originalTestData.Loan_ID, "Loan_Status" : y_pred_Train}).to_csv('sample_submission.csv', index=False)
-result = model.score_summary(sort_by='min_score')
+#result = model.score_summary(sort_by='min_score')
 
